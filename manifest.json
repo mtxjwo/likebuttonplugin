@@ -1,0 +1,34 @@
+{
+  "name": "LikeButton.eth",
+  "icons": {
+    "16": "./likebutton.png",
+    "32": "./likebutton.png",
+    "48": "./likebutton.png"
+  },
+  "browser_action": {
+    "default_popup": "likebutton.html"
+  },
+  "description": "A decentralised like button.",
+  "version": "1.0",
+  "manifest_version": 2,
+  "permissions": [
+    "contextMenus",
+    "background",
+    "tabs",
+    "storage",
+    "activeTab",
+    "http://*/",
+    "https://*/"
+  ],
+  "externally_connectable": {
+    "matches": ["*://*.twitter.com/*", "*://*.jsdelivr.net/*"]
+  },
+  "background": {
+    "scripts": [
+      "web3.min.js",
+      "ethers.js",
+      "likebutton-abi.js",
+      "likebutton-service.js"
+    ]
+  }
+}
