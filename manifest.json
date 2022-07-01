@@ -5,30 +5,25 @@
     "32": "./likebutton.png",
     "48": "./likebutton.png"
   },
-  "browser_action": {
+  "action": {
     "default_popup": "likebutton.html"
   },
   "description": "A decentralised like button.",
   "version": "1.0",
-  "manifest_version": 2,
+  "manifest_version": 3,
   "permissions": [
     "contextMenus",
+    "scripting",
     "background",
     "tabs",
-    "storage",
-    "activeTab",
-    "http://*/",
-    "https://*/"
+    "activeTab"
   ],
+  "host_permissions": ["*://*.twitter.com/*"],
   "externally_connectable": {
-    "matches": ["*://*.twitter.com/*", "*://*.jsdelivr.net/*"]
+    "ids": ["ipkoglmoenggpgpjjfopfnbhcinhcjma"],
+    "matches": ["*://localhost/*", "*://*.twitter.com/*"]
   },
   "background": {
-    "scripts": [
-      "web3.min.js",
-      "ethers.js",
-      "likebutton-abi.js",
-      "likebutton-service.js"
-    ]
+    "service_worker": "importer.js"
   }
 }

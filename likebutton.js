@@ -4,47 +4,85 @@ if (typeof web3 === "undefined") {
   );
 }
 
-const likeTokenContractAddress = "0x0469dFb82A816C5F0a566625Cec09216A721E90e";
+if (typeof wallet === "undefined") {
+  wallet = {
+    address: null,
+    balanceChecking: false,
+  };
+}
 
-const wallet = {
-  address: null,
+if (proxyDebug === true) {
+  document.getElementById("log").style.display = "block";
+}
+
+const getWalletAddress = (callback = null) => {
+  chrome.runtime.sendMessage(
+    proxyAppId,
+    { request: "get_ethereum_selected_account" },
+    (r) => {
+      wallet.address = r;
+      if (callback !== null) {
+        callback();
+      }
+    }
+  );
 };
 
 const getBalance = () => {
-  setTimeout(() => {
-    web3.alchemy
-      .getTokenBalances(web3.utils.toChecksumAddress(wallet.address), [
-        web3.utils.toChecksumAddress(likeTokenContractAddress),
-      ])
-      .then((r) => {
-        if (r === null) {
-          return;
-        }
-        document.getElementById("co-loading-container").style.display = "none";
-        document.getElementById("co-token-balance").style.display =
-          "inline-flex";
-        document.getElementById("co-token-balance").innerText =
-          web3.utils.fromWei(r.tokenBalances[0].tokenBalance) + " Tokens";
-      });
-  });
+  if (wallet.balanceChecking === true) {
+    return;
+  }
+  wallet.balanceChecking = true;
+  web3.alchemy
+    .getTokenBalances(web3.utils.toChecksumAddress(wallet.address), [
+      web3.utils.toChecksumAddress(likeTokenContractAddress),
+    ])
+    .then((r) => {
+      balanceChecking = false;
+      document.getElementById("log").append("Balance result..." + r + "\n");
+
+      if (r === null) {
+        return;
+      }
+      document.getElementById("co-loading-container").style.display = "none";
+      document.getElementById("co-token-balance").style.display = "inline-flex";
+      document.getElementById("co-token-balance").innerText =
+        web3.utils.fromWei(r.tokenBalances[0].tokenBalance) + " Tokens";
+    })
+    .catch((e) => {
+      document
+        .getElementById("log")
+        .append("Balance result error...\n" + JSON.stringify(e) + "\n");
+    });
 };
 
-chrome.runtime.onMessageExternal.addListener(function (
-  request,
-  sender,
-  sendResponse
-) {
+chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+  if (proxyDebugShowRequestsDetails === true) {
+    document
+      .getElementById("log")
+      .append("Request received:" + request.request + "\n");
+  }
   switch (request.request) {
     case "set_address_in_popup":
       {
         wallet.address = request.walletAddress;
+        document
+          .getElementById("log")
+          .append("Getting balance..." + request.walletAddress + "\n");
         getBalance();
+        sendResponse("Request received.");
       }
       break;
     default:
       {
-        sendResponse("Popup: no request found.");
+        sendResponse("ERROR");
       }
       break;
   }
 });
+
+const initPopup = () => {
+  getWalletAddress(getBalance);
+};
+
+initPopup();

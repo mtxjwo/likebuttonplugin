@@ -76,6 +76,11 @@ button {
   font-family: "tt";
 }
 
+#log {
+  width: 100%;
+  display: none;
+}
+
 #co-loading-container {
   width: 20px;
   height: 20px;
